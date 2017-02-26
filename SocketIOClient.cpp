@@ -174,6 +174,7 @@ void SocketIOClient::sendHandshake(char hostname[]) {
 	request +=	"Connexion: keep-alive\r\n\r\n";
 
 	client.print(request);
+	if (DEBUG) Serial.println(request);
 }
 
 bool SocketIOClient::waitForInput(void) {
