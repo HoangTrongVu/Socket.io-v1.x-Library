@@ -47,7 +47,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 //Cấu hình debug
-#define DEBUG false
+//#define DEBUG
 
 // Length of static data buffers
 #define DATA_BUFFER_LEN 120
