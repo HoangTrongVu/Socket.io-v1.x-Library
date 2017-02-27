@@ -75,6 +75,7 @@ bool SocketIOClient::reconnect(char thehostname[], int theport, char thensp[])
 }
 //fix disconnected event
 unsigned char on_disconnected_code[] = {129, 2, 52, 49};
+unsigned char force_disconnected_code[] = {136, 2, 3, 232};
 bool SocketIOClient::connected()
 {
 	char ok = true;
@@ -84,6 +85,14 @@ bool SocketIOClient::connected()
 	}
 	if (ok) {
 		disconnect();
+	} else {
+		for (char i = 0; i < 4; i++) {
+			if ((unsigned char)databuffer[i] != force_disconnected_code[i])
+				ok = false;
+		}
+		if (ok) {
+			disconnect();
+		}
 	}
     return client.connected();
 }
