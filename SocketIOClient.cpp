@@ -38,6 +38,7 @@ String Rfull = "";
 
 bool SocketIOClient::connect(char thehostname[], int theport, char thensp[])
 {
+	timeout_count = 0;
     while (!client.connect(thehostname, theport)) {
 #ifdef DEBUG
         Serial.println(F("Khong the ket noi den Socket Server"));
@@ -163,10 +164,10 @@ bool SocketIOClient::monitor()
     *databuffer = 0;
 
     if (!client.connected()) {
-        if (!client.connect(hostname, port))
+        if (!client.connect(hostname, port)) 
             return 0;
     }
-
+	
     if (!client.available()) {
         return 0;
     }
@@ -253,11 +254,7 @@ bool SocketIOClient::readHandshake()
     }
 #ifdef DEBUG
     Serial.println(F(" "));
-#endif
-#ifdef DEBUG
     Serial.print(F("Connected. SID="));
-#endif
-#ifdef DEBUG
     Serial.println(sid);
 #endif // sid:transport:timeout
 

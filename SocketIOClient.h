@@ -78,6 +78,7 @@ private:
 	WiFiClient client;						//For ESP8266
 	bool readHandshake();
 	void readLine();
+	int timeout_count;
 	char *dataptr;
 	char databuffer[DATA_BUFFER_LEN];
 	char sid[SID_LEN];
