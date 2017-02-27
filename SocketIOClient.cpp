@@ -36,6 +36,9 @@ String Rname = "";
 String Rcontent = "";
 String Rfull = "";
 
+unsigned char on_disconnected_code[] = {129, 2, 52, 49};
+unsigned char force_disconnected_code[] = {136, 2, 3, 232};
+
 bool SocketIOClient::connect(char thehostname[], int theport, char thensp[])
 {
 	timeout_count = 0;
@@ -74,8 +77,6 @@ bool SocketIOClient::reconnect(char thehostname[], int theport, char thensp[])
     return connect(thehostname, theport, thensp);
 }
 //fix disconnected event
-unsigned char on_disconnected_code[] = {129, 2, 52, 49};
-unsigned char force_disconnected_code[] = {136, 2, 3, 232};
 bool SocketIOClient::connected()
 {
 	char ok = true;
@@ -178,6 +179,7 @@ bool SocketIOClient::monitor()
 {
     int index = -1;
     int index2 = -1;
+	int index3 = -1;
     String tmp = "";
     *databuffer = 0;
 
@@ -200,12 +202,28 @@ bool SocketIOClient::monitor()
         dataptr = databuffer;
         index = tmp.indexOf((char)129); //129 DEC = 0x81 HEX = sent for proper communication
         index2 = tmp.indexOf((char)129, index + 1);
+		index3 = tmp.indexOf((char)force_disconnected_code[0]);
         if (index != -1) {
             parser(index);
         }
         if (index2 != -1) {
             parser(index2);
         }
+		if (index3 != -1) {
+			char ok = true;
+			int length = tmp.length();
+			for (char i = 0; i < 4; i++) {
+				if (index3 + i >= length) {
+					ok = false;
+					break;
+				}
+				if ((unsigned char)tmp[index3 + i] != force_disconnected_code[i])
+					ok = false;
+			}
+			if (ok) {
+				disconnect();
+			}
+		}
     }
     return 1;
 }
@@ -503,10 +521,10 @@ void SocketIOClient::send(String RID, String Rname, String Rcontent)
     sendMessage(message);
 }
 
-void SocketIOClient::send(String RID, String JSON)
+void SocketIOClient::send(String RID, String json)
 {
 
-    String message = "42/" + String(nsp) + ",[\"" + RID + "\"," + JSON + "]";
+    String message = "42/" + String(nsp) + ",[\"" + RID + "\"," + json + "]";
 
     sendMessage(message);
 }
