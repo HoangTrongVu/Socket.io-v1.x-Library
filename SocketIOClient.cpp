@@ -506,7 +506,7 @@ void SocketIOClient::send(String RID, String Rname, String Rcontent)
 void SocketIOClient::send(String RID, String JSON)
 {
 
-    String message = "42/" + String(nsp) + ",[\"" + RID + "\"," + Rfull + "]";
+    String message = "42/" + String(nsp) + ",[\"" + RID + "\"," + JSON + "]";
 
     sendMessage(message);
 }
