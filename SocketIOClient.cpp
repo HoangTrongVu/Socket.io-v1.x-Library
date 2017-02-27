@@ -73,9 +73,18 @@ bool SocketIOClient::reconnect(char thehostname[], int theport, char thensp[])
 {
     return connect(thehostname, theport, thensp);
 }
-
+//fix disconnected event
+unsigned char on_disconnected_code[] = {129, 2, 52, 49};
 bool SocketIOClient::connected()
 {
+	char ok = true;
+	for (char i = 0; i < 4; i++) {
+		if ((unsigned char)databuffer[i] != on_disconnected_code[i])
+			ok = false;
+	}
+	if (ok) {
+		disconnect();
+	}
     return client.connected();
 }
 
@@ -111,7 +120,7 @@ void SocketIOClient::parser(int index)
         index += 1; // index correction to start
     }
 #ifdef DEBUG
-    Serial.print("Kich thuoc tin nhan = ");
+    Serial.print(F("Kich thuoc tin nhan = "));
 #endif //Can be used for debugging
 #ifdef DEBUG
     Serial.println(sizemsg);
@@ -281,6 +290,7 @@ bool SocketIOClient::readHandshake()
     request += hostname;
     request += "\r\n";
     request += "Origin: Arduino\r\n";
+	request += "Sec-WebSocket-Extensions:permessage-deflate; client_max_window_bits\r\n";
     request += "Sec-WebSocket-Key: ";
     request += sid;
     request += "\r\n";
@@ -421,8 +431,9 @@ void SocketIOClient::readLine()
         }
         else if (c == '\n')
             break;
-        else
+        else {
             *dataptr++ = c;
+		}
     }
     *dataptr = 0;
 }
@@ -479,6 +490,14 @@ void SocketIOClient::send(String RID, String Rname, String Rcontent)
 {
 
     String message = "42/" + String(nsp) + ",[\"" + RID + "\",{\"" + Rname + "\":\"" + Rcontent + "\"}]";
+
+    sendMessage(message);
+}
+
+void SocketIOClient::send(String RID, String JSON)
+{
+
+    String message = "42/" + String(nsp) + ",[\"" + RID + "\"," + Rfull + "]";
 
     sendMessage(message);
 }

@@ -50,7 +50,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 //#define DEBUG
 
 // Length of static data buffers
-#define DATA_BUFFER_LEN 120
+#define DATA_BUFFER_LEN 256
 #define SID_LEN 24
 
 class SocketIOClient {
@@ -63,6 +63,7 @@ public:
 	bool monitor();
 	void sendMessage(String message = "");
 	void send(String RID, String Rname, String Rcontent);
+	void send(String RID, String JSON);
 	void sendNSP();
 	void sendJSON(String RID, String JSON);
 	void heartbeat(int select);
