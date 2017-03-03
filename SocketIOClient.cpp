@@ -181,7 +181,6 @@ bool SocketIOClient::monitor()
     int index2 = -1;
     String tmp = "";
     *databuffer = 0;
-
     if (!client.connected()) {
         if (!client.connect(hostname, port)) 
             return 0;
@@ -434,7 +433,7 @@ void SocketIOClient::deleteREST(String path)
 void SocketIOClient::readLine()
 {
     for (int i = 0; i < DATA_BUFFER_LEN; i++)
-        databuffer[i] = ' ';
+        databuffer[i] = 0;
     dataptr = databuffer;
     while (client.available() && (dataptr < &databuffer[DATA_BUFFER_LEN - 2])) {
         char c = client.read();

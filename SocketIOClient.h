@@ -51,7 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef DEBUG //comment dòng này để bật chế độ debug
 
 // Length of static data buffers
-#define DATA_BUFFER_LEN 2048
+#define DATA_BUFFER_LEN 300
 #define SID_LEN 24
 
 class SocketIOClient {
