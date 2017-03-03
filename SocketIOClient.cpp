@@ -179,7 +179,6 @@ bool SocketIOClient::monitor()
 {
     int index = -1;
     int index2 = -1;
-	int index3 = -1;
     String tmp = "";
     *databuffer = 0;
 
@@ -200,24 +199,23 @@ bool SocketIOClient::monitor()
         Serial.println(databuffer);
 #endif
         dataptr = databuffer;
-        index = tmp.indexOf((char)129); //129 DEC = 0x81 HEX = sent for proper communication
-        index2 = tmp.indexOf((char)129, index + 1);
-		index3 = tmp.indexOf((char)force_disconnected_code[0]);
+        index = tmp.indexOf((char)129); 
+		index2 = tmp.indexOf((char)force_disconnected_code[0]);
         if (index != -1) {
             parser(index);
+			#ifdef DEBUG
+			Serial.println("index1");
+			#endif
         }
-        if (index2 != -1) {
-            parser(index2);
-        }
-		if (index3 != -1) {
+		if (index2 != -1) {
 			char ok = true;
 			int length = tmp.length();
 			for (char i = 0; i < 4; i++) {
-				if (index3 + i >= length) {
+				if (index2 + i >= length) {
 					ok = false;
 					break;
 				}
-				if ((unsigned char)tmp[index3 + i] != force_disconnected_code[i])
+				if ((unsigned char)tmp[index2 + i] != force_disconnected_code[i])
 					ok = false;
 			}
 			if (ok) {

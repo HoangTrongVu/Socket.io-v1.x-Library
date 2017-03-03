@@ -47,10 +47,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 //Cấu hình debug
-//#define DEBUG
+#define DEBUG
+#undef DEBUG //comment dòng này để bật chế độ debug
 
 // Length of static data buffers
-#define DATA_BUFFER_LEN 256
+#define DATA_BUFFER_LEN 2048
 #define SID_LEN 24
 
 class SocketIOClient {
