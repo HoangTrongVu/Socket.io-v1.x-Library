@@ -121,7 +121,7 @@ void SocketIOClient::terminateCommand(void)
     dataptr[strlen(dataptr) - 3] = 0;
 }
 
-void SocketIOClient::parser(int index)
+int SocketIOClient::parser(int index)
 {
     String rcvdmsg = "";
     int sizemsg = databuffer[index + 1]; // 0-125 byte, index ok        Fix provide by Galilei11. Thanks
@@ -143,7 +143,11 @@ void SocketIOClient::parser(int index)
 #ifdef DEBUG
     Serial.println(rcvdmsg);
 #endif //Can be used for debugging
-    switch (rcvdmsg[0]) {
+	int setKey = 0;
+	if (int(rcvdmsg[setKey]) == 129 || int(rcvdmsg[setKey]) == 95)
+		setKey++;
+	
+    switch (rcvdmsg[setKey]) {
     case '2':
 #ifdef DEBUG
         Serial.println(F("Nhan duoc goi tin Ping - Tra loi Pong"));
@@ -158,29 +162,38 @@ void SocketIOClient::parser(int index)
         break;
 
     case '4':
-        switch (rcvdmsg[1]) {
+        switch (rcvdmsg[setKey + 1]) {
         case '0':
 #ifdef DEBUG
             Serial.println(F("Da xac nhan nang cap len Websocket"));
 #endif
             break;
         case '2':
-            Rfull = rcvdmsg;
+			#ifdef DEBUG
+				Serial.println("42");
+			#endif
             RID = rcvdmsg.substring(rcvdmsg.indexOf("[\"") + 2, rcvdmsg.indexOf("\","));
             Rfull = rcvdmsg.substring(rcvdmsg.indexOf("\",") + 2, rcvdmsg.length() - 1);
             Rname = rcvdmsg.substring(rcvdmsg.indexOf("\",") + 4, rcvdmsg.indexOf("\":"));
             Rcontent = rcvdmsg.substring(rcvdmsg.indexOf("\":") + 3, rcvdmsg.indexOf("\"}"));
+			#ifdef DEBUG
+				Serial.println(RID);
+				Serial.println(Rfull);
+			#endif
             break;
         }
     }
+	return sizemsg;
 }
 
 bool SocketIOClient::monitor()
 {
+	
     int index = -1;
     int index2 = -1;
     String tmp = "";
     *databuffer = 0;
+
     if (!client.connected()) {
         if (!client.connect(hostname, port)) 
             return 0;
@@ -200,13 +213,21 @@ bool SocketIOClient::monitor()
         dataptr = databuffer;
         index = tmp.indexOf((char)129); 
 		index2 = tmp.indexOf((char)force_disconnected_code[0]);
+		#ifdef DEBUG
+			Serial.println("Monitor");
+		#endif
+		int lengthParser = 0;
         if (index != -1) {
-            parser(index);
+            lengthParser = parser(index);
 			#ifdef DEBUG
 			Serial.println("index1");
 			#endif
-        }
+        } else 
+			lengthParser = parser(-1);
 		if (index2 != -1) {
+			#ifdef DEBUG
+			Serial.println("index2");
+			#endif
 			char ok = true;
 			int length = tmp.length();
 			for (char i = 0; i < 4; i++) {
@@ -221,8 +242,9 @@ bool SocketIOClient::monitor()
 				disconnect();
 			}
 		}
+		return lengthParser > 0;
     }
-    return 1;
+    return 0;
 }
 
 void SocketIOClient::sendHandshake(char hostname[])
@@ -432,13 +454,16 @@ void SocketIOClient::deleteREST(String path)
 
 void SocketIOClient::readLine()
 {
+	char oldC = 0;
     for (int i = 0; i < DATA_BUFFER_LEN; i++)
-        databuffer[i] = 0;
+        databuffer[i] = ' ';
     dataptr = databuffer;
     while (client.available() && (dataptr < &databuffer[DATA_BUFFER_LEN - 2])) {
         char c = client.read();
 #ifdef DEBUG
         Serial.print(c);
+		//Serial.print(' ');
+		//Serial.println((int)c);
 #endif //Can be used for debugging
         if (c == 0) {
 #ifdef DEBUG
@@ -453,11 +478,12 @@ void SocketIOClient::readLine()
         else if (c == '\r') {
             ;
         }
-        else if (c == '\n')
+        else if (c == '\n' || int(c) == 129) 
             break;
         else {
             *dataptr++ = c;
 		}
+		oldC = c;
     }
     *dataptr = 0;
 }

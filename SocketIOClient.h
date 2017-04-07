@@ -51,7 +51,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 #undef DEBUG //comment dòng này để bật chế độ debug
 
 // Length of static data buffers
-#define DATA_BUFFER_LEN 300
+#define DATA_BUFFER_LEN 2048
 #define SID_LEN 24
 
 class SocketIOClient {
@@ -74,7 +74,7 @@ public:
 	void putREST(String path, String type, String data);
 	void deleteREST(String path);
 private:
-	void parser(int index);
+	int parser(int index);
 	void sendHandshake(char hostname[]);
 	//EthernetClient client;				//For ENC28J60 or W5100
 	WiFiClient client;						//For ESP8266
